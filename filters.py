@@ -1,4 +1,17 @@
 import numpy as np
+from scipy.signal import convolve2d
+
+gx = np.array([
+    [-1, 0, 1],
+    [-2, 0, 2],
+    [-1, 0, 1]
+])
+
+gy = np.array([
+    [1, 2, 1],
+    [0, 0, 0],
+    [-1, -2, -1]
+])
 
 
 def gaussian_kernel(size: int) -> np.ndarray:
@@ -12,10 +25,14 @@ def gaussian_kernel(size: int) -> np.ndarray:
     kernel = kernel.reshape(-1, 1) @ kernel.reshape(1, -1)
     return kernel / np.sum(kernel)
 
-gy = np.array([
-    [-1, 0, 1],
-    [-2, 0, 2],
-    [-1, 0, 1]
-])
 
-gx = gy.T
+def sobel(img: np.ndarray):
+    Gx = convolve2d(img, gx, mode="same", boundary="symm")
+    Gy = convolve2d(img, gy, mode="same", boundary="symm")
+    G = np.sqrt(Gx ** 2 + Gy ** 2)
+    G *= 255 / G.max()
+    alphas = np.arctan2(Gy, Gx)
+    return G, alphas
+
+
+
