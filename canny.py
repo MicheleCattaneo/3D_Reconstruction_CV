@@ -23,15 +23,6 @@ def _get_idx(quad: int, i: int, j: int, offset: np.ndarray)->Tuple[Tuple[int, in
     idx = np.array(idx) + np.array([i, j]) + offset
     return tuple(idx), tuple(-idx)
 
-# def in_range(position, max_y, max_x):
-#     return 0 <= position[0] < max_y and 0 <= position[1] < max_x
-
-# def get_offsetted_indices(i,j, offset_xy, max_y, max_x)->Tuple or None:
-
-#     new_position = np.array([i,j]) + offset_xy
-
-#     return (new_position[0], new_position[1]) if in_range(new_position, max_y, max_x) else None
-
 
 def non_maxima_suppression(G: np.ndarray, alphas: np.ndarray):
     discrete = np.array([-1, -.75, -.5, -.25, 0, .25, .5, .75, 1]) * np.pi
@@ -45,20 +36,18 @@ def non_maxima_suppression(G: np.ndarray, alphas: np.ndarray):
     for i in range(G.shape[0]):
         for j in range(G.shape[1]):
             g1_pos, g2_pos = _get_idx(quadrants[i, j], i, j, offset=np.array([1, 1]))
-            # g1_pos = get_offsetted_indices(i,j, dir1, G.shape[0], G.shape[1])
-            # g2_pos = get_offsetted_indices(i,j, dir2, G.shape[0], G.shape[1])
-
-            # if g1_pos is not None and g2_pos is not None:
             G[i, j] = G[i, j] if G[i, j] >= max(G_padded[g1_pos], G_padded[g2_pos]) else 0
 
     return G
 
 
-def filter_weak_edges():
+def filter_weak_edges(strong: np.ndarray, weak: np.ndarray) -> np.ndarray:
     pass
+
 
 def save_as_image(img: np.ndarray, location: str) -> None:
     Image.fromarray(img.astype("uint8")).save(location)
+
 
 def canny(img: np.ndarray, thl: float, thh: float) -> np.ndarray:
     # 1. smooth image
@@ -87,8 +76,7 @@ def canny(img: np.ndarray, thl: float, thh: float) -> np.ndarray:
 
     edges = strong * 255 + weak * 127
     save_as_image(edges, './outputs/binary_edges.png')
-
-    print(G.min(), G.max())
+    strong = filter_weak_edges(strong, weak)
 
 
 
