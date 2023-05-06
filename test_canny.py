@@ -9,6 +9,7 @@ from canny import _get_idx, filter_weak_edges
 
 # region Angels
 
+# following two lines extracted from canny.non_maximum_suppression()
 discrete = np.array([-1, -.75, -.5, -.25, 0, .25, .5, .75, 1]) * np.pi
 get_quadrant = np.vectorize(lambda a: np.argmin(np.abs(a - discrete)) % 8)
 
@@ -75,6 +76,8 @@ def test_lower_left_to_upper_right():
 
 # endregion
 
+# region Weak to Strong Pixel Algorithm
+
 def test_weak_to_strong():
     strong = np.array([
         [1, 0, 0, 0],
@@ -99,3 +102,6 @@ def test_weak_to_strong():
     result = filter_weak_edges(strong, weak)
 
     assert (result == expected).all()
+
+
+# endregion
