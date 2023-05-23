@@ -120,6 +120,17 @@ if __name__ == '__main__':
     H_dash = map_back_to_inf(line_not_at_infinity)
     affine_image = apply_mapping(img, H_dash)
 
+    red_pixels = np.sum(abs(img[:, :, 0] - 211) < 5)
+
+    blue_pixels = np.sum(abs(img[:, :, 2] - 225) < 5)
+
+    print("Number of red pixels:", red_pixels)
+    print("Number of blue pixels:", blue_pixels)
+
+    ratio = blue_pixels / red_pixels
+
+    print(f"The size of the door is {ratio} m^2.")
+
     plt.imshow(affine_image)
     plt.title("Mapped back Image")
     plt.show()
