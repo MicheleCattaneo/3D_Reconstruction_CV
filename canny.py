@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from filters import gaussian_kernel, sobel
+from utils import zero_pad
 
 import cv2
 
@@ -81,17 +82,6 @@ def non_maximum_suppression(G: np.ndarray, alphas: np.ndarray):
     return G
 
 
-def zero_pad(arr: np.ndarray) -> np.ndarray:
-    """
-    Pads a border of zeros around arr
-    :param arr: numpy array to pad.
-    :return: padded arr
-    """
-    padd = np.zeros(np.array(arr.shape) + 2)
-    padd[1:-1, 1:-1] = arr.copy()
-    return padd
-
-
 def filter_weak_edges(strong: np.ndarray, weak: np.ndarray) -> np.ndarray:
     weak = zero_pad(weak)
     strong_indices = list(map(tuple, np.argwhere(strong)))
@@ -124,7 +114,7 @@ def save_as_image(img: np.ndarray, filename: str) -> None:
     Image.fromarray(img.astype("uint8")).save(filename)
 
 
-def canny(img: np.ndarray, thl: float, thh: float) -> np.ndarray:
+def canny(img: np.ndarray, thl: float, thh: float, plot=False) -> np.ndarray:
     # 1. smooth image
     # maybe don't apply smoothing?
     img = convolve2d(img, gaussian_kernel(5), mode="same", boundary="symm")
@@ -132,27 +122,31 @@ def canny(img: np.ndarray, thl: float, thh: float) -> np.ndarray:
     # 2. directional gradients
     G, alphas = sobel(img)
 
-    # plot alphas
-    fig_alphas, ax_alphas = plt.subplots(figsize=(10, 7))
-    sns.heatmap(alphas, ax=ax_alphas)
-    fig_alphas.savefig('./outputs/1 alphas.png')
+    if plot:
+        # plot alphas
+        fig_alphas, ax_alphas = plt.subplots(figsize=(10, 7))
+        sns.heatmap(alphas, ax=ax_alphas)
+        fig_alphas.savefig('./outputs/1 alphas.png')
 
-    save_as_image(G, './outputs/2 gradient_magnitude.png')
+        save_as_image(G, './outputs/2 gradient_magnitude.png')
 
     # 3. non maxima suppression
     G = non_maximum_suppression(G, alphas)
-    save_as_image(G, './outputs/3 non_maxima_suppression.png')
+    if plot:
+        save_as_image(G, './outputs/3 non_maxima_suppression.png')
 
     # 4. double thresholding
     strong = G > thh
     weak = (G > thl) & (~strong)
 
-    # plot strong and weak edges
-    edges = strong * 255 + weak * 127
-    save_as_image(edges, './outputs/4 strong_weak.png')
+    if plot:
+        # plot strong and weak edges
+        edges = strong * 255 + weak * 127
+        save_as_image(edges, './outputs/4 strong_weak.png')
 
     strong = filter_weak_edges(strong, weak)
-    save_as_image(strong*255, "./outputs/5 canny_ours.png")
+    if plot:
+        save_as_image(strong*255, "./outputs/5 canny_ours.png")
 
     return strong * 255
 
@@ -161,7 +155,7 @@ if __name__ == '__main__':
     # read image as grayscale
     img = np.asarray(Image.open("house1.png").convert("L"))
 
-    edges = canny(img, 10, 40)
+    edges = canny(img, 10, 40, plot=True)
 
     import cv2
     canny = cv2.Canny(img, 10, 40)
