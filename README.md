@@ -14,3 +14,11 @@ Use the Hough transform on the detected edges to find lines on the front of the 
   <img src="./figures/front_lines.png" alt="Image 1" width="400" height="300">
   <img src="./figures/parallel_lines.png" width="400" height="300">
 </div>
+
+
+## Part 2: Recovering internal and external camera parameters from two pictures
+
+Given the following set of enumerated points and their world coordinates, find the corresponding pixel coordinates of the same points from
+some picture and use the DLT algorithm to recover the camera parameters of the camera that was used to generate the picture.
+
+<img src='./figures/house_points.png' width="400px" />
