@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -37,7 +39,7 @@ def ishow(img, filename = None):
         fig.savefig(filename)
 
 
-def read_coords(filename: str)-> list[list]:
+def read_coords(filename: str) -> List[list]:
     """Reads a file of space-separated 3d or 2d homogeneous coordinates
     and returns a list of lists of floats containing those coords.
 

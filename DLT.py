@@ -67,7 +67,12 @@ def get_camera_parameters(P: np.ndarray):
 if __name__ == '__main__':
     coords_3d = np.array(read_coords('./coords/coords_3d.txt'))
     coords_2d_house1 = np.array(read_coords('./coords/coords_2d_house1.txt'))
+    coords_2d_house2 = np.array(read_coords('./coords/coords_2d_house2.txt'))
 
     P = DLT(coords_3d, coords_2d_house1)
     K, R, C_tilde = get_camera_parameters(P)
 
+    P2 = DLT(coords_3d, coords_2d_house2)
+    K2, R2, C_tilde2 = get_camera_parameters(P2)
+
+    print()
