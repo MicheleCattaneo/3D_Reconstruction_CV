@@ -65,7 +65,7 @@ def polar_to_line(polar, img):
     # plt.scatter(points[:, 1], points[:, 0], alpha=.4)
     # plt.gca().invert_yaxis()
     # plt.show()
-    ishow(img)
+    ishow(img, filename='./outputs/found_lines.png')
     print()
 
 
@@ -101,12 +101,12 @@ def guided_hough(
     our_lines = our_lines[(our_lines[:, 0] >= 0) & (our_lines[:, 0] < 180)]
 
 
-    draw_lines(guide, our_lines)
+    draw_lines(guide, our_lines, './outputs/front_lines.png')
 
     return our_lines
 
 
-def draw_lines(image, polar_lines):
+def draw_lines(image, polar_lines, filename=None):
     image = image.copy()
     for theta, rho in polar_lines:
         theta *= np.pi / 180
@@ -117,4 +117,4 @@ def draw_lines(image, polar_lines):
         pt1 = (int(x0 + 1000 * (-b)), int(y0 + 1000 * a))
         pt2 = (int(x0 - 1000 * (-b)), int(y0 - 1000 * a))
         cv2.line(image, pt1, pt2, (0, 0, 255), 1, cv2.LINE_AA)
-    ishow(image)
+    ishow(image, filename=filename)

@@ -29,6 +29,9 @@ def zero_pad(arr: np.ndarray, n: int = 1, mode: str = "fill") -> np.ndarray:
     return padd
 
 
-def ishow(img):
-    plt.imshow(img)
-    plt.show()
+def ishow(img, filename = None):
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax.imshow(img)
+    fig.show()
+    if filename:
+        fig.savefig(filename)

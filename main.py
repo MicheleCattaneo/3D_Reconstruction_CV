@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     # region Finding Lines
 
-    edges = canny(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), 10, 40)
+    edges = canny(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), 10, 40, plot=True)
     lines = guided_hough(edges, img, 42)
 
     vertical_lines = lines[lines[:, 0] < 4]
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     sorting = np.argsort(window_lines[:, 1])
     window1, window2 = window_lines[sorting[0]], window_lines[sorting[-1]]
 
-    draw_lines(img.copy(), np.array([vert1, vert2, window1, window2]))
+    draw_lines(img.copy(), np.array([vert1, vert2, window1, window2]), filename='./outputs/parallel_lines.png')
 
     # endregion
 
