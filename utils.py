@@ -35,3 +35,22 @@ def ishow(img, filename = None):
     fig.show()
     if filename:
         fig.savefig(filename)
+
+
+def read_coords(filename: str)-> list[list]:
+    """Reads a file of space-separated 3d or 2d homogeneous coordinates
+    and returns a list of lists of floats containing those coords.
+
+    Args:
+        filename (string): the path to the file
+
+    Returns:
+        List[List]: The coordinates
+    """    
+    coords = []
+    with open(filename) as f:
+        content = f.readlines()
+        for line in content:
+            coords.append(list(map(float, line.strip().split(' '))))
+
+    return coords
