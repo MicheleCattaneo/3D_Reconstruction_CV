@@ -1,7 +1,18 @@
 from utils import read_coords
 import numpy as np
+from typing import Tuple
 
 def DLT(X: np.ndarray, x: np.ndarray) -> np.ndarray:
+    """Executes the DLT algorithm and returns the projective matrix P
+    of the camera that took the figure/picture. 
+
+    Args:
+        X (np.ndarray): (n x 4) World coordinates in P^3 of a set of n points in the scene.
+        x (np.ndarray): (n x 3) Picture coordinates in P^2 of the same set of point.
+
+    Returns:
+        np.ndarray: the 3x4 projective matrix P
+    """    
     n_corr = X.shape[0]
 
     assert X.shape[0] == x.shape[0]
@@ -32,7 +43,18 @@ def DLT(X: np.ndarray, x: np.ndarray) -> np.ndarray:
     return P
 
 
-def get_camera_parameters(P: np.ndarray):
+def get_camera_parameters(P: np.ndarray)-> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Given a projective matrix P, returns the internal and external
+    camera parameters (calibration matrix K and camera orientation R)
+    as well as the camera coordinates C_tilde in eucledian coodinates.
+
+    Args:
+        P (np.ndarray): The projective matrix P of a camera
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: Matrices K, R and C_tilde
+    """
+
     M = P[:,:-1]
 
     # Get K and R with a RQ decomposition.
