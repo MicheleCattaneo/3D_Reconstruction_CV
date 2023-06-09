@@ -124,9 +124,9 @@ def canny(img: np.ndarray, thl: float, thh: float, plot=False) -> np.ndarray:
 
     if plot:
         # plot alphas
-        fig_alphas, ax_alphas = plt.subplots(figsize=(10, 7))
-        sns.heatmap(alphas, ax=ax_alphas)
-        fig_alphas.savefig('./outputs/1 alphas.png')
+        # fig_alphas, ax_alphas = plt.subplots(figsize=(10, 7))
+        # sns.heatmap(alphas, ax=ax_alphas)
+        # fig_alphas.savefig('./outputs/1 alphas.png')
 
         save_as_image(G, './outputs/2 gradient_magnitude.png')
 

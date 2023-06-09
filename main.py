@@ -135,5 +135,7 @@ if __name__ == '__main__':
     plt.title("Mapped back Image")
     plt.show()
 
+    ishow(affine_image, './outputs/affine_rectification')
+
     print()
     # endregion
