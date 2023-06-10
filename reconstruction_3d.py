@@ -47,12 +47,30 @@ def reconstruction_3d(F, x, x_prime):
 def DLT_homography(X, X_hat):
     n_corr = X.shape[0]
 
-    A = np.zeros((4*n_corr, 16))
-    for i in range(X_hat.shape[0]):
-        A[i*4, :] = np.concatenate([-X_hat[i,3] *X[i], np.zeros(4), X_hat[i,1]*X[i], X_hat[i,2]*X[i]]) #1x16
-        A[i*4 +1, :] = np.concatenate([X_hat[i,3]*X[i] , -X_hat[i,0]*X[i], np.zeros(4), X_hat[i,2]*X[i]]) 
-        A[i*4 +2, :] = np.concatenate([X_hat[i,1]*X[i], X_hat[i,0]*X[i], -X_hat[i,3] * X[i], np.zeros(4)])
-        A[i*4 +3, :] = np.concatenate([X_hat[i,1]*X[i], X_hat[i,2] * X[i], X_hat[i,0] *X[i], -X_hat[i,3] *X[i]]) 
+    A = np.zeros((3*n_corr, 16))
+
+    # fill up matrix A for each correspondance 
+    for i in range(n_corr):
+        A[i*3, :] = np.concatenate([
+            X_hat[i,-1]*X[i],
+            np.zeros(4),
+            np.zeros(4),
+            -X_hat[i,0]*X[i]
+        ])
+        
+        A[i*3+1, :] = np.concatenate([
+            np.zeros(4),
+            X_hat[i,-1]*X[i],
+            np.zeros(4),
+            -X_hat[i,1]*X[i]
+        ])
+
+        A[i*3+2, :] = np.concatenate([
+            np.zeros(4),
+            np.zeros(4),
+            X_hat[i,-1]*X[i],
+            -X_hat[i,2]*X[i]
+        ])
 
     _, _, vh = np.linalg.svd(A)
 
@@ -72,6 +90,15 @@ if __name__ == '__main__':
     F = eight_points_algorithm(coords_house1, coords_house2)
 
     X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
-    print(X_hat)
 
     H = DLT_homography(X, X_hat)
+    print("Estimated Homography (H):\n", H)
+
+    X_hat_transformed = np.dot(H, X_hat.T).T
+    X_hat_transformed = X_hat_transformed / X_hat_transformed[:, -1].reshape(-1, 1)
+
+    print("Reconstructed Points (X_hat):\n", X_hat)
+    print("Transformed Reconstructed Points:\n", X_hat_transformed)
+
+    error = np.sum(np.abs(X - X_hat_transformed))
+    print("Total Error:", error)
