@@ -89,7 +89,21 @@ if __name__ == '__main__':
     coords_house2 = np.array(read_coords('./coords/5coords_house1.txt'))
     F = eight_points_algorithm(coords_house1, coords_house2)
 
-    X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
+    for i, point in enumerate(coords_house2):
+        expected = F @ point
+        print("Expected Result: ", expected / expected[-1])
+        print("Actual Points: ",coords_house1[i])
+
+    # X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
+
+    X_hat = X.copy()
+
+    P = np.array([
+        [],
+        [],
+        [],
+        []
+        ])
 
     H = DLT_homography(X, X_hat)
     print("Estimated Homography (H):\n", H)
