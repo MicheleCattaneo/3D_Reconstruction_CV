@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     # get 5 points correspondance to get the Fundamental matrix
     coords_house1 = np.array(read_coords('./coords/5coords_house1.txt'))
-    coords_house2 = np.array(read_coords('./coords/5coords_house1.txt'))
+    coords_house2 = np.array(read_coords('./coords/5coords_house2.txt'))
     F = eight_points_algorithm(coords_house1, coords_house2)
 
     for i, point in enumerate(coords_house2):
@@ -94,9 +94,9 @@ if __name__ == '__main__':
         print("Expected Result: ", expected / expected[-1])
         print("Actual Points: ",coords_house1[i])
 
-    # X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
+    X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
 
-    X_hat = X.copy()
+    # X_hat = X.copy()
 
     P = np.array([
         [],
