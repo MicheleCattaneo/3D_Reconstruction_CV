@@ -86,6 +86,14 @@ def get_camera_parameters(P: np.ndarray)-> Tuple[np.ndarray, np.ndarray, np.ndar
     return K, R, C_tilde
 
 
+def check_P(P, X, x, pixel_eps=3):
+    for i in range(X.shape[0]):
+        x_hat = P @ X[i]
+        x_hat /= x_hat[-1]
+        assert np.abs((x[i] - x_hat).max()) < pixel_eps 
+
+
+
 if __name__ == '__main__':
     coords_3d = np.array(read_coords('./coords/coords_3d.txt'))
     coords_2d_house1 = np.array(read_coords('./coords/coords_2d_house1.txt'))
@@ -97,4 +105,7 @@ if __name__ == '__main__':
     P2 = DLT(coords_3d, coords_2d_house2)
     K2, R2, C_tilde2 = get_camera_parameters(P2)
 
-    print()
+    # check that the P we get maps the 3D points to the image points
+    # with an accepted error of 3 pixel most in either x or y direction.
+    check_P(P, coords_3d, coords_2d_house1, pixel_eps=3)
+    check_P(P2, coords_3d, coords_2d_house2, pixel_eps=3)

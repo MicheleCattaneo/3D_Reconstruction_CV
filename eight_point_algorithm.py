@@ -42,6 +42,10 @@ def eight_points_algorithm(x, x_prime):
 
     return F
 
+def checkF(F, x, x_prime):
+    # should be 0
+    for i, x in enumerate(x):
+        print(x_prime[i].T @ F @ x)
 
 
 if __name__ == '__main__':
@@ -75,3 +79,4 @@ if __name__ == '__main__':
         image = cv2.line(image, start_point, end_point, (0,0,0), 5)
 
     ishow(image, './outputs/epipolar_lines.png')
+    checkF(F, coords_house1, coords_house2)
