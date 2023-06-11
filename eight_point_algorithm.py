@@ -68,6 +68,13 @@ def drawlines(img, lines):
         
     return img
 
+def draw_points(img, points):
+
+    color = (0,0,255)
+    for p in points:
+        img = cv2.circle(img, tuple(map(int, p)), 5, color, -1)
+
+    return img
 
 def computeEpipolarLines(points, F, image=1):
     """Computes the epipolar lines as arrays (a,b,c) for each point in points
@@ -75,7 +82,7 @@ def computeEpipolarLines(points, F, image=1):
     If image==1, then the given points are points from image 1 and the lines are computed
     for image 2 as l' = Fx.
     If image==2, then the given points are points from image 2 and the lines are computed 
-    for image 1 as l = F^Tx.
+    for image 1 as l = F^Tx'.
 
     Args:
         points np.ndarray: The points on either image 1 or image 2.
@@ -125,9 +132,11 @@ if __name__ == '__main__':
 
     epipolar_lines1 = computeEpipolarLines(ten_coords_2d_house2, F, image=2)
     image1 = drawlines(image1, epipolar_lines1)
+    image1 = draw_points(image1, ten_coords_2d_house1[:,:-1])
 
     epipolar_lines2 = computeEpipolarLines(ten_coords_2d_house1, F, image=1)
     image2 = drawlines(image2, epipolar_lines2)
+    image2 = draw_points(image2, ten_coords_2d_house2[:,:-1])
 
     ishow(image1, './outputs/epipolar_lines1.png')
     ishow(image2, './outputs/epipolar_lines2.png')
