@@ -42,41 +42,94 @@ def eight_points_algorithm(x, x_prime):
 
     return F
 
-def checkF(F, x, x_prime):
+def checkF(F, x, x_prime, eps=0.5):
     # should be 0
     for i, x in enumerate(x):
-        print(x_prime[i].T @ F @ x)
+        assert np.abs(x_prime[i].T @ F @ x - 0) < eps
+
+def drawlines(img, lines):
+    """Given an image, draws the given epipolar lines on the image and returns it.
+
+    Args:
+        img np.ndarray: The image/figure.
+        lines np.ndarray: An array of epipolar lines (a,b,c) such that they describe a line
+        ax + by + c = 0
+
+    Returns:
+        np.ndarray: The image with the lines drawn on it.
+    """    
+    r, c = img.shape
+    
+    for r in lines:
+        color = (0,0,0)
+        x0, y0 = map(int, [0, -r[2]/r[1]])
+        x1, y1 = map(int, [c, -(r[2]+r[0]*c)/r[1]])
+        img = cv2.line(img, (x0, y0), (x1, y1), color, 1)
+        
+    return img
+
+
+def computeEpipolarLines(points, F, image=1):
+    """Computes the epipolar lines as arrays (a,b,c) for each point in points
+    using the fundamental matrix F. 
+    If image==1, then the given points are points from image 1 and the lines are computed
+    for image 2 as l' = Fx.
+    If image==2, then the given points are points from image 2 and the lines are computed 
+    for image 1 as l = F^Tx.
+
+    Args:
+        points np.ndarray: The points on either image 1 or image 2.
+        F np.ndarray: The fundamental matrix
+        image (int, optional): Defines from which image the given points are coming from. It can either be
+        1 of 2. If 1 is given, the lines returned are for image 2. If 2 is gven the lines returned are for
+        image 1. Defaults to 1.
+
+    Returns:
+        _type_: A np.ndarray of shape (n,3) containing the epipolar lines (a,b,c) for each given point.
+    """    
+    n = points.shape[0]
+    lines = []
+    for p in points:
+        if image == 1:
+            line = F @ p
+        else:
+            line = F.T @ p
+        lines.append(line)
+
+    return np.array(lines)
+
 
 
 if __name__ == '__main__':
-    coords_house1 = np.array(read_coords('./coords/5coords_house1.txt'))
-    coords_house2 = np.array(read_coords('./coords/5coords_house2.txt'))
+    # coords_house1 = np.array(read_coords('./coords/5coords_house1.txt'))
+    # coords_house2 = np.array(read_coords('./coords/5coords_house2.txt'))
+
+    ten_coords_2d_house1 = np.array(read_coords('./coords/coords_2d_house1.txt'))
+    ten_coords_2d_house2 = np.array(read_coords('./coords/coords_2d_house2.txt'))
 
     
     # fundamental matrix
-    F = eight_points_algorithm(coords_house1, coords_house2)
+    F = eight_points_algorithm(ten_coords_2d_house1, ten_coords_2d_house2)
+    # F_true = cv2.findFundamentalMat(ten_coords_2d_house1, ten_coords_2d_house2)[0]
+
+
     print('Fundamental matrix:\n',F)
 
-    path = './house1.png'
+    # print('True F: \n', F_true)
+    path1 = './house1.png'
+    path2 = './house2.png'
 
-    image = cv2.imread(path, 0)
+    image1 = cv2.imread(path1, 0)
+    image2 = cv2.imread(path2, 0)
 
-    for i, point in enumerate(coords_house2):
-        line = F @ point
-        print(np.dot(line, coords_house2[i]))
 
-        x_start = 0
-        y_start = int((- line[0] * x_start - line[2]) / line[1])
-        start_point = (y_start, x_start)
+    epipolar_lines1 = computeEpipolarLines(ten_coords_2d_house2, F, image=2)
+    image1 = drawlines(image1, epipolar_lines1)
 
-        x_end = 960
-        y_end = int((- line[0] * x_end - line[2]) / line[1])
-        end_point = (y_end, x_end)
+    epipolar_lines2 = computeEpipolarLines(ten_coords_2d_house1, F, image=1)
+    image2 = drawlines(image2, epipolar_lines2)
 
-        print(start_point)
-        print(end_point)
-
-        image = cv2.line(image, start_point, end_point, (0,0,0), 5)
-
-    ishow(image, './outputs/epipolar_lines.png')
-    checkF(F, coords_house1, coords_house2)
+    ishow(image1, './outputs/epipolar_lines1.png')
+    ishow(image2, './outputs/epipolar_lines2.png')
+    checkF(F, ten_coords_2d_house1, ten_coords_2d_house2, eps=0.5)
+    # checkF(F_true, ten_coords_2d_house1, ten_coords_2d_house2)
