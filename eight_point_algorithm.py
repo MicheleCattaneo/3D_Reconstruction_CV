@@ -68,11 +68,18 @@ def drawlines(img, lines):
         
     return img
 
-def draw_points(img, points):
+def draw_points(img, points, labels=True):
 
     color = (0,0,255)
-    for p in points:
+    for i, p in enumerate(points):
         img = cv2.circle(img, tuple(map(int, p)), 5, color, -1)
+        if labels:
+            img = cv2.putText(img,f'{i+1}', org = tuple(map(int, p)), 
+                                fontFace = cv2.FONT_HERSHEY_SIMPLEX, 
+                                fontScale = 0.8,
+                                color = (0,0,0),
+                                thickness = 2,
+                                lineType = 2)
 
     return img
 
