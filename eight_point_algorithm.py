@@ -58,7 +58,7 @@ def drawlines(img, lines):
     Returns:
         np.ndarray: The image with the lines drawn on it.
     """    
-    r, c = img.shape
+    r, c = img.shape[0], img.shape[1]
     
     for r in lines:
         color = (0,0,0)
@@ -133,8 +133,10 @@ if __name__ == '__main__':
     path1 = './house1.png'
     path2 = './house2.png'
 
-    image1 = cv2.imread(path1, 0)
-    image2 = cv2.imread(path2, 0)
+    image1 = cv2.imread(path1)
+    image2 = cv2.imread(path2)
+    image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
+    image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
 
 
     epipolar_lines1 = computeEpipolarLines(ten_coords_2d_house2, F, image=2)
