@@ -2,6 +2,18 @@ import numpy as np
 from utils import read_coords
 from eight_point_algorithm import eight_points_algorithm
 import scipy
+import plotly.express as px
+import pandas as pd
+
+def plot_3D_points(X, X_prime):
+    X[:,-1] = 0
+    XX = np.vstack((X, X_prime))
+    df = pd.DataFrame(XX, columns=['X', 'Y', 'Z', 'label'])
+    fig = px.scatter_3d(df, x='X', y='Y', z='Z',
+                    color_discrete_sequence=px.colors.qualitative.Plotly,
+                    color='label')
+    
+    fig.show()
 
 def skew(x):
     return np.array([[0, -x[2], x[1]],
@@ -44,32 +56,32 @@ def reconstruction_3d(F, x, x_prime):
     X_hat = np.array(X_hat)  
     return  X_hat / X_hat[:,-1].reshape(-1,1)
 
-def DLT_homography(X, X_hat):
-    n_corr = X.shape[0]
+def DLT_homography(X_prime, X):
+    n_corr = X_prime.shape[0]
 
     A = np.zeros((3*n_corr, 16))
 
     # fill up matrix A for each correspondance 
     for i in range(n_corr):
         A[i*3, :] = np.concatenate([
-            X_hat[i,-1]*X[i],
+            X[i,-1]*X_prime[i],
             np.zeros(4),
             np.zeros(4),
-            -X_hat[i,0]*X[i]
+            -X[i,0]*X_prime[i]
         ])
         
         A[i*3+1, :] = np.concatenate([
             np.zeros(4),
-            X_hat[i,-1]*X[i],
+            X[i,-1]*X_prime[i],
             np.zeros(4),
-            -X_hat[i,1]*X[i]
+            -X[i,1]*X_prime[i]
         ])
 
         A[i*3+2, :] = np.concatenate([
             np.zeros(4),
             np.zeros(4),
-            X_hat[i,-1]*X[i],
-            -X_hat[i,2]*X[i]
+            X[i,-1]*X_prime[i],
+            -X[i,2]*X_prime[i]
         ])
 
     _, _, vh = np.linalg.svd(A)
@@ -78,41 +90,30 @@ def DLT_homography(X, X_hat):
     H = h.reshape(4,4)
     return H
 
+def check_reconstruction(X, X_prime, eps=0.1):
+    for a,b in zip(X, X_prime):
+        assert (np.abs(a - b) < eps).all()
+
 if __name__ == '__main__':
     # get the 10 points on the images and 10 points in 3d
     coords_2d_house1 = np.array(read_coords('./coords/coords_2d_house1.txt'))
     coords_2d_house2 = np.array(read_coords('./coords/coords_2d_house2.txt'))
     X = np.array(read_coords('./coords/coords_3d.txt'))
 
-    # get 5 points correspondance to get the Fundamental matrix
-    coords_house1 = np.array(read_coords('./coords/5coords_house1.txt'))
-    coords_house2 = np.array(read_coords('./coords/5coords_house2.txt'))
-    F = eight_points_algorithm(coords_house1, coords_house2)
+    F = eight_points_algorithm(coords_2d_house1, coords_2d_house2)
 
-    for i, point in enumerate(coords_house2):
-        expected = F @ point
-        print("Expected Result: ", expected / expected[-1])
-        print("Actual Points: ",coords_house1[i])
 
     X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
 
-    # X_hat = X.copy()
 
-    P = np.array([
-        [],
-        [],
-        [],
-        []
-        ])
-
-    H = DLT_homography(X, X_hat)
-    print("Estimated Homography (H):\n", H)
+    H = DLT_homography(X_hat, X)
+    # print("Estimated Homography (H):\n", H)
 
     X_hat_transformed = np.dot(H, X_hat.T).T
     X_hat_transformed = X_hat_transformed / X_hat_transformed[:, -1].reshape(-1, 1)
 
-    print("Reconstructed Points (X_hat):\n", X_hat)
-    print("Transformed Reconstructed Points:\n", X_hat_transformed)
-
     error = np.sum(np.abs(X - X_hat_transformed))
     print("Total Error:", error)
+
+    check_reconstruction(X, X_hat_transformed, eps=0.1)
+    plot_3D_points(X, X_hat_transformed)
