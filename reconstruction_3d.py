@@ -3,17 +3,46 @@ from utils import read_coords
 from eight_point_algorithm import eight_points_algorithm
 import scipy
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 
 def plot_3D_points(X, X_prime):
+    """Plots the two sets of points X and X' in 3d
+    with two different colors. The points are assumed 
+    to have 1s in the 4th dimension.
+
+    Args:
+        X np.ndarray: First set of points
+        X_prime np.ndarray: Second set of points
+
+    Returns:
+        Figure: the figure to show.
+    """    
     X[:,-1] = 0
-    XX = np.vstack((X, X_prime))
-    df = pd.DataFrame(XX, columns=['X', 'Y', 'Z', 'label'])
+    if X_prime is not None:
+        XX = np.vstack((X, X_prime))
+        df = pd.DataFrame(XX, columns=['X', 'Y', 'Z', 'label'])
+    else:
+        df = pd.DataFrame(X, columns=['X', 'Y', 'Z', 'label'])
+    
     fig = px.scatter_3d(df, x='X', y='Y', z='Z',
                     color_discrete_sequence=px.colors.qualitative.Plotly,
                     color='label')
-    
-    fig.show()
+
+
+    return fig
+
+
+def connect_points(edges, X, fig):
+    for e in edges:
+        e_start, e_end = e
+        fig.add_trace(go.Scatter3d(
+            x=[X[e_start][0], X[e_end][0]], 
+            y=[X[e_start][1], X[e_end][1]], 
+            z=[X[e_start][2], X[e_end][2]],
+            mode='lines'
+    ))
+        
 
 def skew(x):
     return np.array([[0, -x[2], x[1]],
@@ -34,12 +63,10 @@ def linear_triangulation(x, x_prime, P, P_prime):
     
     return X_hat
 
-def reconstruction_3d(F, x, x_prime):
+def get_canonical_camera_pair(F):
     # get left null space of F
     e_prime = scipy.linalg.null_space(F.T)
     e_prime = np.squeeze(e_prime)
-
-    # print(e_prime)
 
     P = np.eye(3,4)
 
@@ -47,6 +74,22 @@ def reconstruction_3d(F, x, x_prime):
 
     P_prime = np.hstack([skew_e @ F, e_prime.reshape(-1,1)])
 
+    return P, P_prime
+
+def reconstruction_3d(x, x_prime, P, P_prime):
+    """Given two sets of image points and the two 
+    corresponding cameras, applies linear trinagulation and 
+    returns the corresponding 3d points (world points)
+
+    Args:
+        x np.ndarray: Image 1 points
+        x_prime np.ndarray: Image 2 points
+        P np.ndarray: Camera matrix 1
+        P_prime np.ndarray: Camera matrix 2
+
+    Returns:
+        np.ndarray: The reconstructed 3d points.
+    """    
     X_hat = []
     for i in range(x.shape[0]):
         X_hat.append(
@@ -57,6 +100,16 @@ def reconstruction_3d(F, x, x_prime):
     return  X_hat / X_hat[:,-1].reshape(-1,1)
 
 def DLT_homography(X_prime, X):
+    """Returns a 4x4 homography matrix that transforms
+     3d points X and X' such that: X = HX'
+
+    Args:
+        X_prime np.ndarray: The first set of points
+        X np.ndarray: The second set of points
+
+    Returns:
+        np.ndarray: The homography matrix
+    """    
     n_corr = X_prime.shape[0]
 
     A = np.zeros((3*n_corr, 16))
@@ -91,6 +144,14 @@ def DLT_homography(X_prime, X):
     return H
 
 def check_reconstruction(X, X_prime, eps=0.1):
+    """Checks that two sets of corresponding points
+    are all close to each other within a eps difference
+
+    Args:
+        X np.ndarray: first set of points
+        X_prime np.ndarray: second set of points
+        eps (float, optional): The maximal allowed difference on each dimension. Defaults to 0.1.
+    """    
     for a,b in zip(X, X_prime):
         assert (np.abs(a - b) < eps).all()
 
@@ -102,13 +163,16 @@ if __name__ == '__main__':
 
     F = eight_points_algorithm(coords_2d_house1, coords_2d_house2)
 
+    # Get canonical pair of cameras
+    P, P_prime = get_canonical_camera_pair(F)
+    # Reconstruct 3d points using the canonical pair
+    X_hat = reconstruction_3d(coords_2d_house1, coords_2d_house2, P, P_prime)
 
-    X_hat = reconstruction_3d(F, coords_2d_house1, coords_2d_house2)
-
-
+    # Get the homography that relates the canonical pair to the correct pair of cameras
     H = DLT_homography(X_hat, X)
     # print("Estimated Homography (H):\n", H)
 
+    # Apply H on the points 
     X_hat_transformed = np.dot(H, X_hat.T).T
     X_hat_transformed = X_hat_transformed / X_hat_transformed[:, -1].reshape(-1, 1)
 
@@ -116,4 +180,23 @@ if __name__ == '__main__':
     print("Total Error:", error)
 
     check_reconstruction(X, X_hat_transformed, eps=0.1)
-    plot_3D_points(X, X_hat_transformed)
+    fig = plot_3D_points(X, X_hat_transformed)
+    connect_points([(1,2),
+                   (6,8),
+                   (6,3),
+                   (3,4)], X, fig)
+    fig.show()
+
+    # Get the true camera pairs by applying the inverse of the homography H
+    P_tilde = P @ np.linalg.inv(H)
+    P_prime_tilde = P_prime @ np.linalg.inv(H)
+
+    # Read the unknown 5 points 
+    unknown_5_points1 = np.array(read_coords('./coords/5coords_house1.txt'))
+    unknown_5_points2 = np.array(read_coords('./coords/5coords_house2.txt'))
+    # reconstruct their 3d coordinates
+    X5 = reconstruction_3d(unknown_5_points1, unknown_5_points2, P_tilde, P_prime_tilde)
+    
+
+    fig2 = plot_3D_points(X, X5)
+    fig2.show()
