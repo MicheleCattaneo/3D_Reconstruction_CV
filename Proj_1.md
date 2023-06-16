@@ -6,10 +6,9 @@
 
 ## Preliminaries
 ### Used Libraries
-- Numpy
-- matplotlib
-- scipy
-- (opencv to test our implementation)
+```shell
+pip install -r requirements.txt
+```
 
 ### How to run the code
 `python affine_rectification.py`
