@@ -1,7 +1,6 @@
 """
 Solves Project 3
 """
-
 from typing import Tuple, List
 
 import matplotlib.pyplot as plt
@@ -243,3 +242,14 @@ if __name__ == '__main__':
         (1, 12), (7, 13), (5, 10)
     ], np.vstack([X, X5]), fig2)
     fig2.show()
+
+    print("Fundamental matrix:")
+    print(F / F[-1, -1])
+    print("Canonical cameras:")
+    print(P)
+    print(P_prime)
+    print("True cameras:")
+    print(P_tilde)
+    print(P_prime_tilde)
+    print("Reconstructed unknown points:")
+    print(X5)
