@@ -109,3 +109,19 @@ if __name__ == '__main__':
     # with an accepted error of 3 pixel most in either x or y direction.
     check_P(P, coords_3d, coords_2d_house1, pixel_eps=3)
     check_P(P2, coords_3d, coords_2d_house2, pixel_eps=3)
+
+    print("For image 1:\n")
+    print("Calibration matrix:")
+    print(K / K[-1,-1])
+    print("Camera orientation:")
+    print(R / R[-1, -1])
+    print("C_tilde:")
+    print(C_tilde)
+
+    print("\n\nFor image 2:\n")
+    print("Calibration matrix:")
+    print(K2 / K2[-1,-1])
+    print("Camera orientation:")
+    print(R2 / R2[-1, -1])
+    print("C_tilde:")
+    print(C_tilde2)

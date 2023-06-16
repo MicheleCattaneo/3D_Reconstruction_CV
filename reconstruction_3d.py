@@ -200,3 +200,14 @@ if __name__ == '__main__':
 
     fig2 = plot_3D_points(X, X5)
     fig2.show()
+
+    print("Fundamental matrix:")
+    print(F / F[-1,-1])
+    print("Canonical cameras:")
+    print(P)
+    print(P_prime)
+    print("True cameras:")
+    print(P_tilde)
+    print(P_prime_tilde)
+    print("Reconstructed unknown points:")
+    print(X5)
