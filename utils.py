@@ -11,10 +11,10 @@ def zero_pad(arr: np.ndarray, n: int = 1, mode: str = "fill") -> np.ndarray:
     :return: padded arr
     """
     if len(arr.shape) == 2:
-        padd = np.zeros(np.array(arr.shape) + 2*n)
+        padd = np.zeros(np.array(arr.shape) + 2 * n)
     else:
         h, w, c = arr.shape
-        padd = np.zeros((h+2*n, w+2*n, c))
+        padd = np.zeros((h + 2 * n, w + 2 * n, c))
     padd[n:-n, n:-n] = arr = arr.copy()
     if mode == "symm":
         assert n == 1, "symmetric padding is only implemented for n=1"
@@ -31,10 +31,11 @@ def zero_pad(arr: np.ndarray, n: int = 1, mode: str = "fill") -> np.ndarray:
     return padd
 
 
-def ishow(img, filename = None):
+def ishow(img, filename=None, show=True):
     fig, ax = plt.subplots(figsize=(6, 5))
     ax.imshow(img)
-    fig.show()
+    if show:
+        fig.show()
     if filename:
         fig.savefig(filename)
 
@@ -48,7 +49,7 @@ def read_coords(filename: str) -> List[list]:
 
     Returns:
         List[List]: The coordinates
-    """    
+    """
     coords = []
     with open(filename) as f:
         content = f.readlines()

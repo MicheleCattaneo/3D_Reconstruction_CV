@@ -3,13 +3,9 @@ from typing import Tuple
 from scipy.signal import convolve2d
 import numpy as np
 from PIL import Image
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from filters import gaussian_kernel, sobel
 from utils import zero_pad
-
-import cv2
 
 
 def _get_idx(quad: int, i: int, j: int, offset: np.ndarray) \
@@ -123,17 +119,12 @@ def canny(img: np.ndarray, thl: float, thh: float, plot=False) -> np.ndarray:
     G, alphas = sobel(img)
 
     if plot:
-        # plot alphas
-        # fig_alphas, ax_alphas = plt.subplots(figsize=(10, 7))
-        # sns.heatmap(alphas, ax=ax_alphas)
-        # fig_alphas.savefig('./outputs/1 alphas.png')
-
-        save_as_image(G, './outputs/2 gradient_magnitude.png')
+        save_as_image(G, './outputs/1 gradient_magnitude.png')
 
     # 3. non maxima suppression
     G = non_maximum_suppression(G, alphas)
     if plot:
-        save_as_image(G, './outputs/3 non_maxima_suppression.png')
+        save_as_image(G, './outputs/2 non_maxima_suppression.png')
 
     # 4. double thresholding
     strong = G > thh
@@ -141,12 +132,12 @@ def canny(img: np.ndarray, thl: float, thh: float, plot=False) -> np.ndarray:
 
     if plot:
         # plot strong and weak edges
-        edges = strong * 255 + weak * 127
-        save_as_image(edges, './outputs/4 strong_weak.png')
+        edges = strong * 255 + weak * 64
+        save_as_image(edges, './outputs/3 strong_weak.png')
 
     strong = filter_weak_edges(strong, weak)
     if plot:
-        save_as_image(strong*255, "./outputs/5 canny_ours.png")
+        save_as_image(strong*255, "./outputs/4 canny_ours.png")
 
     return strong * 255
 
@@ -159,7 +150,7 @@ if __name__ == '__main__':
 
     import cv2
     canny = cv2.Canny(img, 10, 40)
-    save_as_image(canny, "outputs/6 ground_truth.png")
-    save_as_image(((canny-edges)+255) // 2, "outputs/7 difference.png")
+    save_as_image(canny, "outputs/5 ground_truth.png")
+    save_as_image(((canny-edges)+255) // 2, "outputs/6 difference.png")
 
 
