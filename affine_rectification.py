@@ -98,9 +98,9 @@ if __name__ == '__main__':
     H_dash = map_back_to_inf(line_not_at_infinity)
     affine_image = nearest_neighbour_mapping(img, H_dash)
 
-    red_pixels = np.sum(abs(img[:, :, 0] - 211) < 5)
+    red_pixels = np.sum(abs(img[:, :, 0] - 211) < 10)
 
-    blue_pixels = np.sum(abs(img[:, :, 2] - 225) < 5)
+    blue_pixels = np.sum(abs(img[:, :, 2] - 225) < 10)
 
     print("Number of red pixels:", red_pixels)
     print("Number of blue pixels:", blue_pixels)

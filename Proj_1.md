@@ -45,4 +45,4 @@ Finally, we applied H to the image using NN to obtain our rectified image.
 
 
 ## Computing the Door Size
-We know that the size of the window is 1 $m^2$, so we first compute how many pixels the window is composed of by counting the number of pixels with approximately the color of the window. We do the same thing for the door with its blue tone. We count 4825 red pixels and 8608 blue pixels whose ratio directly relates to the size of the door which is 1.784 $m^2$.
+We know that the size of the window is 1 $m^2$, so we first compute how many pixels the window is composed of by counting the number of pixels with approximately the color of the window. We do the same thing for the door with its blue tone. We count 4925 red pixels and 8900 blue pixels whose ratio directly relates to the size of the door which is 1.807 $m^2$.
