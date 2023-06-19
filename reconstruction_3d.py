@@ -244,7 +244,7 @@ if __name__ == '__main__':
     fig2.show()
 
     print("Fundamental matrix:")
-    print(F / F[-1, -1])
+    print(F)
     print("Canonical cameras:")
     print(P)
     print(P_prime)
